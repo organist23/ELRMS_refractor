@@ -74,7 +74,25 @@
 @keyframes cg-pop { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes cg-shake { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-12deg); } 40% { transform: rotate(10deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(4deg); } }
 
+/* "already generated this month" notice, shown instead of the Generate box */
+.cg-done {
+  display: flex; gap: 18px; align-items: flex-start;
+  background: var(--success-light); border: 1px solid #a7f3d0; border-left: 4px solid var(--success);
+  animation: cg-slide-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.cg-done-icon {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--success); color: #fff; display: flex; align-items: center; justify-content: center;
+  animation: cg-pop 0.4s 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+}
+.cg-done-title { font-weight: 700; color: #065f46; font-size: 1rem; margin-bottom: 4px; }
+.cg-done-line { color: #047857; font-size: 0.875rem; line-height: 1.5; }
+.cg-done-next {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 6px 12px;
+  border-radius: 999px; background: #fff; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.82rem;
+}
+
 /* Same information, no motion, for people who turned animations off */
 @media (prefers-reduced-motion: reduce) {
-  .cg-notice, .cg-icon::after, .cg-fill, .cg-attention, .cg-modal, .cg-modal-icon, .cg-item { animation: none !important; }
+  .cg-notice, .cg-icon::after, .cg-fill, .cg-attention, .cg-modal, .cg-modal-icon, .cg-item, .cg-done, .cg-done-icon { animation: none !important; }
 }
