@@ -1,9 +1,9 @@
 import React from 'react';
-import { RefreshCw, Trash2, Edit, Users, FileText, Clock, FilePlus } from 'lucide-react';
+import { RefreshCw, Trash2, Edit, Users, FileText, Clock, FilePlus, Banknote } from 'lucide-react';
 import PrivilegeTiles from '../PrivilegeTiles';
 
 // Employee Management: right card with the selected employee's details, actions and leave credits.
-const EmployeeDetails = ({ selectedEmp, audit, yearlyHistory, navigate, handleDeleteEmployee, setIsEditModalOpen, setIsLeaveModalOpen, setIsTardyModalOpen }) => (
+const EmployeeDetails = ({ selectedEmp, audit, yearlyHistory, navigate, handleDeleteEmployee, setIsEditModalOpen, setIsLeaveModalOpen, setIsTardyModalOpen, setIsMonetizeModalOpen }) => (
   <div className="premium-card" style={{ height: 'fit-content', position: 'sticky', top: '40px', padding: '32px' }}>
     {selectedEmp ? (
       <div>
@@ -54,6 +54,17 @@ const EmployeeDetails = ({ selectedEmp, audit, yearlyHistory, navigate, handleDe
           >
             <Clock size={16} />
             Deduct For Tardy
+          </button>
+
+          {/* Monetization: deduct monetized VL/SL days at any time */}
+          <button
+            className="btn-secondary w-full flex items-center justify-center gap-10"
+            style={{ marginTop: '10px', padding: '10px' }}
+            onClick={() => setIsMonetizeModalOpen(true)}
+            title="Monetize VL / SL credits"
+          >
+            <Banknote size={16} />
+            Monetize VL / SL
           </button>
         </div>
 

@@ -37,6 +37,7 @@ app.use(require('./routes/stats'));
 app.use(require('./routes/ledger'));
 app.use(require('./routes/leaveCard'));
 app.use(require('./routes/tardy'));
+app.use(require('./routes/monetization'));
 app.use(require('./routes/system'));
 
 // Start accepting requests only after the schema migrations have run (they are quick and idempotent).

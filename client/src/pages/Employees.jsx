@@ -10,6 +10,7 @@ import RegisterEmployeeModal from '../components/modals/RegisterEmployeeModal';
 import EditEmployeeModal from '../components/modals/EditEmployeeModal';
 import EncodeLeaveModal from '../components/modals/EncodeLeaveModal';
 import EquivalentDayModal from '../components/modals/EquivalentDayModal';
+import MonetizeModal from '../components/modals/MonetizeModal';
 import { useNotification } from '../context/NotificationContext';
 
 const Employees = () => {
@@ -23,6 +24,7 @@ const Employees = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isTardyModalOpen, setIsTardyModalOpen] = useState(false);
+  const [isMonetizeModalOpen, setIsMonetizeModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [yearlyHistory, setYearlyHistory] = useState([]);
@@ -233,6 +235,7 @@ const Employees = () => {
           setIsEditModalOpen={setIsEditModalOpen}
           setIsLeaveModalOpen={setIsLeaveModalOpen}
           setIsTardyModalOpen={setIsTardyModalOpen}
+          setIsMonetizeModalOpen={setIsMonetizeModalOpen}
         />
       </div>
 
@@ -240,6 +243,7 @@ const Employees = () => {
       {isEditModalOpen && selectedEmp && <EditEmployeeModal employee={selectedEmp} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchEmployees} />}
       {isLeaveModalOpen && selectedEmp && <EncodeLeaveModal employee={selectedEmp} onClose={() => setIsLeaveModalOpen(false)} onSuccess={fetchEmployees} />}
       {isTardyModalOpen && selectedEmp && <EquivalentDayModal employee={selectedEmp} onClose={() => setIsTardyModalOpen(false)} onSuccess={fetchEmployees} />}
+      {isMonetizeModalOpen && selectedEmp && <MonetizeModal employee={selectedEmp} onClose={() => setIsMonetizeModalOpen(false)} onSuccess={fetchEmployees} />}
     </div>
   );
 };
