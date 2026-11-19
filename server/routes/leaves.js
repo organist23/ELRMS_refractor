@@ -2,10 +2,41 @@ const express = require('express');
 const db = require('../db');
 const { balanceSnapshot, insertLedgerEntry } = require('../helpers/ledger');
 const { isClosedSql, assertMonthOpen } = require('../helpers/closedMonth');
-const { LEAVE_TYPES } = require('../constants');
+const { LEAVE_TYPES, MONTH_NAMES } = require('../constants');
 const { LEAVE_BALANCE_FIELD, ledgerLeaveCode } = require('../helpers/leaveTypes');
 
 const router = express.Router();
+
+// Filing guard: a leave is locked by the month it is filed in (applied_at, see helpers/closedMonth.js).
+// If credits were already generated for this month (or a later one), a leave filed now could never
+// be approved or rejected, so filing is refused until the next open month. Server local time, like
+// assertMonthOpen.
+async function getFilingStatus(connection) {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    const [logs] = await connection.execute(
+        'SELECT month, year FROM accrual_logs WHERE (year > ?) OR (year = ? AND month >= ?) ORDER BY year DESC, month DESC LIMIT 1',
+        [year, year, month]
+    );
+    if (logs.length === 0) return { closed: false, month, year };
+
+    // Filing opens again on the 1st of the month after the latest generated month
+    const last = logs[0];
+    const openMonth = last.month === 12 ? 1 : last.month + 1;
+    const openYear = last.month === 12 ? last.year + 1 : last.year;
+    const message = `Filing Locked: Monthly credits for ${MONTH_NAMES[last.month - 1]} ${last.year} are already generated, so this month is closed. ` +
+        `A leave filed now could not be approved or rejected. Please file it on or after ${MONTH_NAMES[openMonth - 1]} 1, ${openYear}.`;
+    return { closed: true, month, year, closedMonth: last.month, closedYear: last.year, openMonth, openYear, message };
+}
+
+router.get('/api/leaves/filing-status', async (req, res) => {
+    try {
+        res.json(await getFilingStatus(db));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // 3. Leave Applications
 router.get('/api/leaves/pending', async (req, res) => {
@@ -43,6 +74,10 @@ router.post('/api/leaves/apply', async (req, res) => {
         if (num_days === '' || num_days === null || num_days === undefined || !Number.isFinite(days) || days <= 0) {
             return res.status(400).json({ error: 'Number of days must be greater than 0.' });
         }
+
+        // Closed month: refuse, otherwise the application would be stuck in Pending Requests
+        const filing = await getFilingStatus(db);
+        if (filing.closed) return res.status(400).json({ error: filing.message });
 
         // Validation check for privileges
         const [balanceRows] = await db.execute('SELECT * FROM leave_balances WHERE employee_id = ?', [employee_id]);
