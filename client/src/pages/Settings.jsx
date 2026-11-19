@@ -33,7 +33,13 @@ const Settings = () => {
       const response = await fetch('http://localhost:5000/api/system/backup');
 
       if (!response.ok) {
-        throw new Error('Backup failed on server');
+        // The server answers { error: '...' } on failure; show that reason when available.
+        let reason = 'Backup failed on server';
+        try {
+          const body = await response.json();
+          if (body?.error) reason = body.error;
+        } catch (e) { /* not JSON, keep generic message */ }
+        throw new Error(reason);
       }
 
       const blob = await response.blob();

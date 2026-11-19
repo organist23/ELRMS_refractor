@@ -32,12 +32,34 @@ router.get('/api/ping', async (req, res) => {
 // 7. System Utilities
 router.get('/api/system/backup', async (req, res) => {
     try {
+        const connection = getDbConnectionConfig();
         const dump = await mysqldump({
-            connection: getDbConnectionConfig(),
+            connection,
+            // DROP TABLE IF EXISTS before each CREATE TABLE, so importing over an existing
+            // database replaces it with this snapshot instead of failing on duplicate rows.
+            dump: { schema: { table: { dropIfExist: true } } },
         });
-        
+
+        // Wrap schema + data so the file imports into the right database no matter which one
+        // is selected in the SQL client (e.g. not information_schema), with FK checks off while
+        // tables are dropped/recreated.
+        const dbName = '`' + String(connection.database).replace(/`/g, '``') + '`';
+        const header = [
+            `-- ELRMS database backup`,
+            `-- Database: ${dbName}`,
+            `-- Created: ${new Date().toISOString()}`,
+            `-- Importing this file REPLACES all ELRMS tables in ${dbName} with this snapshot.`,
+            '',
+            'SET NAMES utf8mb4;',
+            'SET FOREIGN_KEY_CHECKS = 0;',
+            `CREATE DATABASE IF NOT EXISTS ${dbName} DEFAULT CHARACTER SET utf8mb4;`,
+            `USE ${dbName};`,
+            '',
+        ].join('\n');
+        const footer = '\n\nSET FOREIGN_KEY_CHECKS = 1;\n';
+
         // Combine schema and data for a full backup
-        const fullDump = dump.dump.schema + '\n\n' + dump.dump.data;
+        const fullDump = header + '\n' + dump.dump.schema + '\n\n' + dump.dump.data + footer;
         
         res.setHeader('Content-Type', 'application/sql');
         res.setHeader('Content-Disposition', `attachment; filename="elrms_backup_${new Date().toISOString().split('T')[0]}.sql"`);
