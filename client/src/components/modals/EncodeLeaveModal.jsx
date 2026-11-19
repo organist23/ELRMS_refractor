@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import { X, Calendar } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
@@ -15,6 +15,16 @@ const EncodeLeaveModal = ({ employee, onClose, onSuccess }) => {
     num_days: 1,
     reason: ''
   });
+
+  // Closed month: once this month's credits are generated, a leave filed now could never be
+  // approved or rejected, so the server refuses it. Ask first so the form can warn up front.
+  const [filingStatus, setFilingStatus] = useState(null);
+  useEffect(() => {
+    api.get('/leaves/filing-status')
+      .then(res => setFilingStatus(res.data))
+      .catch(() => setFilingStatus(null)); // unknown: the server still checks on submit
+  }, []);
+  const filingLocked = filingStatus?.closed === true;
 
   const earnedLeaves = ['Vacation Leave', 'Sick Leave'];
   const privilegeLeaves = ['Special Leave', 'Force Leave', 'Wellness Leave', 'Solo Parent Leave', 'Maternity Leave', 'Paternity Leave', 'Special Benefits for Women']
@@ -100,7 +110,7 @@ const EncodeLeaveModal = ({ employee, onClose, onSuccess }) => {
   const isInvalidRange = leaveData.date_from && leaveData.date_to && new Date(leaveData.date_to) < new Date(leaveData.date_from);
   // A range made only of Sundays gives 0 leave days
   const isSundayOnly = !isInvalidRange && Number(leaveData.num_days) < 1;
-  const blockSubmit = wellnessWarning || isInvalidRange || isSundayOnly;
+  const blockSubmit = filingLocked || wellnessWarning || isInvalidRange || isSundayOnly;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -125,6 +135,19 @@ const EncodeLeaveModal = ({ employee, onClose, onSuccess }) => {
           </div>
           <button onClick={onClose} className="icon-btn"><X size={24} /></button>
         </div>
+
+        {filingLocked && (
+          <div
+            role="alert"
+            style={{
+              background: '#fef2f2', border: '1px solid #fecaca', borderLeft: '4px solid #dc2626',
+              color: '#991b1b', borderRadius: '8px', padding: '12px 16px', marginTop: '-16px', marginBottom: '24px',
+              fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.5
+            }}
+          >
+            ⚠ {filingStatus.message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
