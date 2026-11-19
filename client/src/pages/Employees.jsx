@@ -112,6 +112,7 @@ const Employees = () => {
   }, [selectedEmp?.id]);
 
   const handleGenerateCredits = async () => {
+    if (!audit || audit.pendingAccrual === false) return; // this month is already generated (or not checked yet)
     // Something would be locked or it is early: show the animated confirmation instead of the plain one
     if (guardIssues(audit, precheck)) {
       setIsGuardOpen(true);

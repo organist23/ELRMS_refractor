@@ -1,9 +1,41 @@
 import React from 'react';
-import { Send } from 'lucide-react';
+import { Send, CheckCircle2, CalendarClock } from 'lucide-react';
 import { guardIssues } from './CreditGuard';
 
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// Shown instead of the Generate box once this month's credits exist, so nobody tries to generate twice.
+const CreditsGeneratedNotice = ({ month, year, generatedAt }) => {
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const nextYear = month === 12 ? year + 1 : year;
+  const when = generatedAt ? new Date(generatedAt) : null;
+  const whenText = when && !Number.isNaN(when.getTime())
+    ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+    : null;
+  return (
+    <div className="premium-card mb-40 cg-done" role="status">
+      <div className="cg-done-icon"><CheckCircle2 size={22} /></div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="cg-done-title">{MONTHS[month - 1]} {year} monthly credits are already generated</div>
+        <div className="cg-done-line">
+          Every active employee received +1.25 VL and +1.25 SL{whenText ? ` on ${whenText}` : ''}. Generating again is turned off to avoid duplicate credits.
+        </div>
+        <div className="cg-done-next">
+          <CalendarClock size={14} />
+          <span>Generate Monthly Credits opens again on <strong>{MONTHS[nextMonth - 1]} 1, {nextYear}</strong>.</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Employee Management: "Generate Monthly Credits (1.25)" box (month/year come from the server audit).
-const MonthlyCreditsPanel = ({ accrualMonth, accrualYear, isGenerating, audit, precheck, handleGenerateCredits }) => (
+const MonthlyCreditsPanel = ({ accrualMonth, accrualYear, isGenerating, audit, precheck, handleGenerateCredits }) => {
+  if (audit && audit.pendingAccrual === false) {
+    return <CreditsGeneratedNotice month={Number(audit.month)} year={Number(audit.year)} generatedAt={audit.generatedAt} />;
+  }
+  const checking = !audit; // wait for the server to say whether this month is still open
+  return (
   <div className="premium-card mb-40" style={{ background: 'var(--accent-light)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
     {/* Label */}
     <div className="flex items-center gap-14" style={{ flexShrink: 0 }}>
@@ -47,16 +79,17 @@ const MonthlyCreditsPanel = ({ accrualMonth, accrualYear, isGenerating, audit, p
           padding: '0 28px',
           whiteSpace: 'nowrap',
           alignSelf: 'flex-end',
-          opacity: (isGenerating || audit?.pendingRollover) ? 0.5 : 1,
-          cursor: (isGenerating || audit?.pendingRollover) ? 'not-allowed' : 'pointer'
+          opacity: (checking || isGenerating || audit?.pendingRollover) ? 0.5 : 1,
+          cursor: (checking || isGenerating || audit?.pendingRollover) ? 'not-allowed' : 'pointer'
         }}
         onClick={handleGenerateCredits}
-        disabled={isGenerating || audit?.pendingRollover}
+        disabled={checking || isGenerating || audit?.pendingRollover}
       >
-        {audit?.pendingRollover ? 'Rollover Required First' : (isGenerating ? 'Generating...' : 'Confirm Generate')}
+        {checking ? 'Checking...' : audit?.pendingRollover ? 'Rollover Required First' : (isGenerating ? 'Generating...' : 'Confirm Generate')}
       </button>
     </div>
   </div>
-);
+  );
+};
 
 export default MonthlyCreditsPanel;

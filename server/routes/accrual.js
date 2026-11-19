@@ -253,6 +253,7 @@ router.get('/api/system/audit', async (req, res) => {
 
         res.json({
             pendingAccrual: accrualLogs.length === 0,
+            generatedAt: accrualLogs.length ? accrualLogs[0].generated_at : null,
             pendingRollover: isRolloverPending,
             month: currentMonth,
             year: currentYear,
