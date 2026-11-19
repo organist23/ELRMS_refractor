@@ -1,6 +1,6 @@
 {
   "name": "elrms_final",
-  "version": "1.0.0",
+  "version": "3.2.0",
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "main.js",
   "scripts": {
@@ -23,6 +23,7 @@
       "main.js",
       "preload.js",
       "server/**/*",
+      "server/node_modules/**/*",
       "client/dist/**/*",
       "package.json",
       "node_modules/**/*"
