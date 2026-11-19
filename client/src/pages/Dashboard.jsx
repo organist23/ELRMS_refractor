@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { Users, FileClock, AlertCircle, RefreshCw, FileText } from 'lucide-react';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState({ totalEmployees: 0, pendingApproval: 0 });
   const [audit, setAudit] = useState(null);
@@ -96,6 +98,13 @@ const Dashboard = () => {
                   </p>
                 </div>
               </div>
+              <button
+                className="btn-primary"
+                style={{ marginLeft: 'auto', whiteSpace: 'nowrap', flexShrink: 0 }}
+                onClick={() => navigate('/settings')}
+              >
+                Go to Settings
+              </button>
             </div>
           )}
 

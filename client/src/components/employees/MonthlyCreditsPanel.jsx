@@ -40,7 +40,14 @@ const MonthlyCreditsPanel = ({ accrualMonth, accrualYear, isGenerating, audit, p
     {/* Label */}
     <div className="flex items-center gap-14" style={{ flexShrink: 0 }}>
       <Send size={20} color="var(--accent)" />
-      <span className="font-bold" style={{ color: 'var(--accent)', fontSize: '1rem', whiteSpace: 'nowrap' }}>Generate Monthly Credits (1.25)</span>
+      <div className="flex flex-col" style={{ gap: '2px' }}>
+        <span className="font-bold" style={{ color: 'var(--accent)', fontSize: '1rem', whiteSpace: 'nowrap' }}>Generate Monthly Credits (1.25)</span>
+        {audit?.pendingRollover && (
+          <span className="text-small" style={{ color: 'var(--primary)', opacity: 0.8 }}>
+            Run the Yearly Rollover in Settings → Database first.
+          </span>
+        )}
+      </div>
     </div>
 
     {/* Inputs + Button */}

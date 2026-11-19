@@ -9,7 +9,6 @@ import EmployeeDetails from '../components/employees/EmployeeDetails';
 import RegisterEmployeeModal from '../components/modals/RegisterEmployeeModal';
 import EditEmployeeModal from '../components/modals/EditEmployeeModal';
 import EncodeLeaveModal from '../components/modals/EncodeLeaveModal';
-import RolloverModal from '../components/modals/RolloverModal';
 import EquivalentDayModal from '../components/modals/EquivalentDayModal';
 import { useNotification } from '../context/NotificationContext';
 
@@ -24,7 +23,6 @@ const Employees = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isTardyModalOpen, setIsTardyModalOpen] = useState(false);
-  const [isRolloverModalOpen, setIsRolloverModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [yearlyHistory, setYearlyHistory] = useState([]);
@@ -181,9 +179,6 @@ const Employees = () => {
           <p className="text-muted">Manage employee profiles and update leave credits.</p>
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <button className="btn-secondary" onClick={() => setIsRolloverModalOpen(true)}>
-            Yearly Rollover
-          </button>
           <button className="btn-primary" onClick={() => setIsRegModalOpen(true)}>
             <UserPlus size={18} />
             Register New
@@ -245,7 +240,6 @@ const Employees = () => {
       {isEditModalOpen && selectedEmp && <EditEmployeeModal employee={selectedEmp} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchEmployees} />}
       {isLeaveModalOpen && selectedEmp && <EncodeLeaveModal employee={selectedEmp} onClose={() => setIsLeaveModalOpen(false)} onSuccess={fetchEmployees} />}
       {isTardyModalOpen && selectedEmp && <EquivalentDayModal employee={selectedEmp} onClose={() => setIsTardyModalOpen(false)} onSuccess={fetchEmployees} />}
-      {isRolloverModalOpen && <RolloverModal onClose={() => setIsRolloverModalOpen(false)} onSuccess={() => { fetchEmployees(); fetchAudit(); }} />}
     </div>
   );
 };

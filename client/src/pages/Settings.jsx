@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Monitor, Download, Loader2, CheckCircle2, AlertTriangle, Server } from 'lucide-react';
+import { Database, Monitor, Download, Loader2, CheckCircle2, AlertTriangle, Server, RefreshCw } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import api from '../utils/api';
+import RolloverModal from '../components/modals/RolloverModal';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('database');
   const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isRolloverModalOpen, setIsRolloverModalOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState(null);
   const { notify } = useNotification();
 
@@ -169,10 +171,34 @@ const Settings = () => {
                   <span>NOTE: Before yearly rollover, backups are recommended to prevent data loss during system transitions.</span>
                 </div>
               </div>
+
+              <div className="settings-group" style={{ marginTop: '24px' }}>
+                <h4 className="group-title">Annual Maintenance</h4>
+                <div className="action-row">
+                  <div className="action-info">
+                    <div className="action-icon-wrapper">
+                      <RefreshCw size={20} />
+                    </div>
+                    <div className="action-text">
+                      <h5>Yearly Rollover</h5>
+                      <p>Forward leave balances from the source year to the next year and reset privilege leaves to their full annual limits.</p>
+                    </div>
+                  </div>
+                  <button
+                    className="btn-minimal"
+                    onClick={() => setIsRolloverModalOpen(true)}
+                  >
+                    <RefreshCw size={16} />
+                    <span>Yearly Rollover</span>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </main>
       </div>
+
+      {isRolloverModalOpen && <RolloverModal onClose={() => setIsRolloverModalOpen(false)} onSuccess={() => {}} />}
 
       <style>{`
         .settings-container {
